@@ -9,7 +9,7 @@ namespace QuickFix
 {
     public class Header : FieldMap
     {
-        public int[] HEADER_FIELD_ORDER = { Tags.BeginString, Tags.BodyLength, Tags.MsgType };
+        public int[] HEADER_FIELD_ORDER = { Tags.BeginString, Tags.BodyLength, Tags.MsgType, Tags.MsgSeqNum, Tags.SenderCompID, Tags.TargetCompID };
 
         public Header()
             : base()
