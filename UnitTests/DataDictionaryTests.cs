@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
 using QuickFix;
+using QuickFix.Fields;
 
 namespace UnitTests
 {
@@ -152,6 +153,58 @@ namespace UnitTests
             QuickFix.DataDictionary.DataDictionary dd = new QuickFix.DataDictionary.DataDictionary("../../../spec/fix/FIX44.xml");
             Assert.Throws(typeof(InvalidTagNumber),
                 delegate { dd.CheckValidTagNumber(999); });
+        }
+
+        [Test]
+        public void AllowUnknownMsgFieldTest()
+        {
+            QuickFix.DataDictionary.DataDictionary dd = new QuickFix.DataDictionary.DataDictionary("../../../spec/fix/FIX42.xml");
+            dd.AllowUnknownMsgFields = true;
+
+            var fm = new FieldMap();
+            fm.SetFields(new IField[]
+            {
+                new OrderID("ORDER00032"),
+                new ExecID("EXEC0002"),
+                new ExecTransType('0'),
+                new ExecType('0'),
+                new OrdStatus('0'),
+                new Symbol("ABCD"),
+                new Side('1'),
+                new LeavesQty(100),
+                new CumQty(10),
+                new AvgPx(32.33m),
+                new StringField(5001, "CustomTag 5001 Test"),
+                new StringField(4999,  "Non Custom Tag 4999 Test")        
+            });
+
+            Assert.DoesNotThrow(delegate { dd.Iterate(fm , "8");});
+        }
+
+        [Test]
+        public void NotAllowUnknownMsgFieldTest()
+        {
+            QuickFix.DataDictionary.DataDictionary dd = new QuickFix.DataDictionary.DataDictionary("../../../spec/fix/FIX42.xml");
+            dd.AllowUnknownMsgFields = false;
+
+            var fm = new FieldMap();
+            fm.SetFields(new IField[]
+            {
+                new OrderID("ORDER00032"),
+                new ExecID("EXEC0002"),
+                new ExecTransType('0'),
+                new ExecType('0'),
+                new OrdStatus('0'),
+                new Symbol("ABCD"),
+                new Side('1'),
+                new LeavesQty(100),
+                new CumQty(10),
+                new AvgPx(32.33m),
+                new StringField(5001, "CustomTag 5001 Test"),
+                new StringField(4999,  "Non Custom Tag 4999 Test")
+            });
+
+            Assert.Throws<InvalidTagNumber>(delegate { dd.Iterate(fm, "8"); });
         }
 
         [Test]
